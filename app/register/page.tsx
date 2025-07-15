@@ -13,7 +13,8 @@ import { Music, CheckCircle } from "lucide-react"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -41,7 +42,8 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
         }),
@@ -118,29 +120,29 @@ export default function RegisterPage() {
               )}
 
               <div>
-                <Label htmlFor="name">First Name</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="firstName"
+                  name="firstName"
                   type="text"
-                  value={formData.name}
+                  value={formData.firstName}
                   onChange={handleChange}
                   required
                   className="mt-1"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your first name"
                 />
               </div>
               <div>
-                <Label htmlFor="name">Last Name</Label>
+                <Label htmlFor="lastName">Last Name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="lastName"
+                  name="lastName"
                   type="text"
-                  value={formData.name}
+                  value={formData.lastName}
                   onChange={handleChange}
                   required
                   className="mt-1"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your last name"
                 />
               </div>
 
@@ -183,7 +185,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="mt-1" 
+                  className="mt-1"
                   placeholder="Confirm your password"
                 />
               </div>

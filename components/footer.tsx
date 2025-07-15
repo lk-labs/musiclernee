@@ -38,10 +38,10 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-2 text-gray-400">
               <p>
-                <strong className="text-white">Email:</strong> info@cvgpraysing.com
+                <strong className="text-white">Email:</strong> miggs63@yahoo.com
               </p>
               <p>
-                <strong className="text-white">Phone:</strong> +1 (555) 123-4567
+                <strong className="text-white">Phone:</strong> 0718601582
               </p>
             </div>
           </div>

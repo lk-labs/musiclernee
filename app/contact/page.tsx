@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,10 +11,12 @@ import { Phone, Mail, MessageCircle, MapPin, Clock, Send } from "lucide-react"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     message: "",
   })
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
 
@@ -34,7 +35,12 @@ export default function ContactPage() {
 
       if (response.ok) {
         setSubmitStatus("success")
-        setFormData({ name: "", email: "", message: "" })
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          message: "",
+        })
       } else {
         setSubmitStatus("error")
       }
@@ -76,33 +82,31 @@ export default function ContactPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="name">First Name</Label>
+                <Label htmlFor="firstname">First Name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="firstname"
+                  name="firstName"
                   type="text"
-                  value={formData.name}
+                  value={formData.firstName}
                   onChange={handleChange}
                   required
                   className="mt-1"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your first name"
                 />
               </div>
-
-               <div>
-                <Label htmlFor="name">Second Name</Label>
+              <div>
+                <Label htmlFor="lastname">Last Name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="lastname"
+                  name="lastName"
                   type="text"
-                  value={formData.name}
+                  value={formData.lastName}
                   onChange={handleChange}
                   required
                   className="mt-1"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your last name"
                 />
               </div>
-
               <div>
                 <Label htmlFor="email">Email Address</Label>
                 <Input
@@ -116,7 +120,6 @@ export default function ContactPage() {
                   placeholder="Enter your email address"
                 />
               </div>
-
               <div>
                 <Label htmlFor="message">Message</Label>
                 <Textarea
@@ -169,7 +172,6 @@ export default function ContactPage() {
                   <p className="text-sm text-gray-500">Available during business hours</p>
                 </div>
               </div>
-
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-r from-blue-600 to-yellow-500">
                   <Mail className="w-6 h-6 text-white" />
@@ -180,7 +182,6 @@ export default function ContactPage() {
                   <p className="text-sm text-gray-500">We respond within 24 hours</p>
                 </div>
               </div>
-
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-r from-blue-600 to-yellow-500">
                   <MessageCircle className="w-6 h-6 text-white" />
@@ -198,7 +199,6 @@ export default function ContactPage() {
                   <p className="text-sm text-gray-500">Quick responses during business hours</p>
                 </div>
               </div>
-
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-r from-blue-600 to-yellow-500">
                   <MapPin className="w-6 h-6 text-white" />
