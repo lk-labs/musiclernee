@@ -189,7 +189,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-lg">WhatsApp</h3>
                   <a
-                    href="https://wa.me/2341234567890"
+                    href="https://wa.me/254718601582"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-yellow-500 hover:text-yellow-600 font-medium"
