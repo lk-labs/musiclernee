@@ -116,7 +116,7 @@ export default function FAQsPage() {
                 <Link href="/contact">Contact Us</Link>
               </Button>
               <Button asChild variant="outline" className="w-full bg-transparent">
-                <a href="https://wa.me/2341234567890" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/254718601582" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp Chat
                 </a>
