@@ -34,9 +34,10 @@ export default function RegisterPage() {
       setIsLoading(false)
       return
     }
+    console.log("Sending data:", formData);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch("http://localhost/musiclernee/backend/register.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +56,7 @@ export default function RegisterPage() {
         setSuccess(true)
         setTimeout(() => {
           router.push("/login")
-        }, 2000)
+        }, 1000)
       } else {
         setError(data.message || "Registration failed. Please try again.")
       }

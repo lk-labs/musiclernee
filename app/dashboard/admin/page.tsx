@@ -1,320 +1,118 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState("overview")
   const [loading, setLoading] = useState(true)
-  const [materials, setMaterials] = useState([])
-  const [users, setUsers] = useState([])
-  const [messages, setMessages] = useState([])
-  const [mounted, setMounted] = useState(false)
+  const [materialUrl, setMaterialUrl] = useState("")
+
   const router = useRouter()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    const userData = localStorage.getItem("user")
 
-  useEffect(() => {
-    if (!mounted) return
-
-    const checkAuth = async () => {
-      try {
-        const userData = localStorage.getItem("user")
-        if (!userData) {
-          router.push("/login")
-          return
-        }
-
-        const parsedUser = JSON.parse(userData)
-        if (parsedUser.role !== "admin") {
-          router.push("/dashboard/user")
-          return
-        }
-
-        setUser(parsedUser)
-        await loadData()
-      } catch (error) {
-        console.error("Error checking auth:", error)
-        localStorage.removeItem("user")
-        router.push("/login")
-      } finally {
-        setLoading(false)
-      }
+    if (!userData) {
+      router.push("/login")
+      return
     }
 
-    checkAuth()
-  }, [mounted, router])
-
-  const loadData = async () => {
     try {
-      // Load materials
-      const materialsRes = await fetch("/api/admin/materials")
-      if (materialsRes.ok) {
-        const materialsData = await materialsRes.json()
-        setMaterials(materialsData)
-      }
+      const parsedUser = JSON.parse(userData)
+      setUser(parsedUser)
 
-      // Load users
-      const usersRes = await fetch("/api/admin/users")
-      if (usersRes.ok) {
-        const usersData = await usersRes.json()
-        setUsers(usersData)
-      }
-
-      // Load messages
-      const messagesRes = await fetch("/api/admin/messages")
-      if (messagesRes.ok) {
-        const messagesData = await messagesRes.json()
-        setMessages(messagesData)
+      // Redirect if not admin
+      if (parsedUser.userType !== "admin") {
+        router.push("/dashboard/user")
       }
     } catch (error) {
-      console.error("Error loading data:", error)
+      console.error("Error parsing user data:", error)
+      router.push("/login")
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [router])
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("user")
-      router.push("/")
-    } catch (error) {
-      console.error("Error during logout:", error)
-      window.location.href = "/"
-    }
+    localStorage.removeItem("user")
+    router.push("/login")
   }
 
-  if (!mounted || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+  const handleSaveMaterialUrl = () => {
+    // Save to backend or state logic
+    alert("Teaching material URL saved: " + materialUrl)
   }
 
-  if (!user) {
-    return null
+  if (loading) return <p className="p-4">Loading...</p>
+
+  if (!user || user.userType !== "admin") {
+    return <p className="p-4 text-red-500">Access denied. Redirecting...</p>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <Button onClick={handleLogout} variant="outline">
-              Logout
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8 bg-white p-1 rounded-lg shadow-sm">
-          {[
-            { id: "overview", label: "Overview" },
-            { id: "materials", label: "Teaching Materials" },
-            { id: "users", label: "Users" },
-            { id: "messages", label: "Messages" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                activeTab === tab.id ? "bg-blue-600 text-white" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <Button onClick={handleLogout} variant="destructive">
+            Logout
+          </Button>
         </div>
 
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
-          <div className="grid md:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <p className="text-xs text-gray-500">Registered members</p>
-              </CardContent>
-            </Card>
+        <p className="text-gray-700 mb-6">Welcome, {user.email}</p>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Teaching Materials</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{materials.length}</div>
-                <p className="text-xs text-gray-500">Video tutorials</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">New Messages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{messages.filter((m: any) => m.status === "new").length}</div>
-                <p className="text-xs text-gray-500">Unread messages</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Messages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{messages.length}</div>
-                <p className="text-xs text-gray-500">All contact messages</p>
-              </CardContent>
-            </Card>
+        {/* Manage Users */}
+        <div className="mb-8 p-4 border rounded bg-gray-50 shadow-sm">
+          <h2 className="text-xl font-semibold mb-2">Manage Users</h2>
+          <p className="text-gray-600 mb-4">View, add, edit or delete registered users.</p>
+          <div className="space-x-2">
+            <Button className="bg-green-600 hover:bg-green-700 text-white">Add User</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Edit User</Button>
+            <Button className="bg-red-600 hover:bg-red-700 text-white">Delete User</Button>
+            <Button className="bg-gray-600 hover:bg-gray-700 text-white">View Users</Button>
           </div>
-        )}
+        </div>
 
-        {/* Teaching Materials Tab */}
-        {activeTab === "materials" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Teaching Materials</CardTitle>
-              <CardDescription>Manage your uploaded teaching materials</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {materials.map((material: any) => (
-                  <div key={material.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold">{material.title}</h3>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                        <Button variant="destructive" size="sm">
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{material.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs capitalize">
-                        {material.category}
-                      </span>
-                      <span className="text-xs text-gray-500">{new Date(material.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Teaching Material */}
+        <div className="mb-8 p-4 border rounded bg-gray-50 shadow-sm">
+          <h2 className="text-xl font-semibold mb-2">Music Teaching Material</h2>
+          <p className="text-gray-600 mb-4">Embed a YouTube link or PDF URL for music learners.</p>
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://example.com/teaching-material"
+              value={materialUrl}
+              onChange={(e) => setMaterialUrl(e.target.value)}
+            />
+            <Button onClick={handleSaveMaterialUrl}>Save</Button>
+          </div>
+        </div>
 
-        {/* Users Tab */}
-        {activeTab === "users" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Registered Users</CardTitle>
-              <CardDescription>Manage user accounts and permissions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Name</th>
-                      <th className="text-left py-2">Email</th>
-                      <th className="text-left py-2">Role</th>
-                      <th className="text-left py-2">Joined</th>
-                      <th className="text-left py-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user: any) => (
-                      <tr key={user.id} className="border-b">
-                        <td className="py-2">{user.name}</td>
-                        <td className="py-2">{user.email}</td>
-                        <td className="py-2">
-                          <span
-                            className={`px-2 py-1 rounded text-xs ${
-                              user.role === "admin" ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="py-2">{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td className="py-2">
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
-                              Edit
-                            </Button>
-                            {user.role !== "admin" && (
-                              <Button variant="destructive" size="sm">
-                                Delete
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Contact Messages */}
+        <div className="mb-8 p-4 border rounded bg-gray-50 shadow-sm">
+          <h2 className="text-xl font-semibold mb-2">Messages from Contact Form</h2>
+          <p className="text-gray-600 mb-4">View and reply to messages sent through the contact form.</p>
 
-        {/* Messages Tab */}
-        {activeTab === "messages" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Messages</CardTitle>
-              <CardDescription>View and respond to user inquiries</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {messages.map((message: any) => (
-                  <div key={message.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-semibold">{message.name}</h3>
-                        <p className="text-sm text-gray-600">{message.email}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            message.status === "new" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {message.status}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(message.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-gray-700 mb-3">{message.message}</p>
-                    <div className="flex space-x-2">
-                      <Button size="sm">Reply</Button>
-                      <Button variant="outline" size="sm">
-                        Mark as Read
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+          {/* Example message block */}
+          <div className="border p-3 rounded mb-3 bg-white shadow-sm">
+            <p><strong>From:</strong> user@example.com</p>
+            <p><strong>Message:</strong> I am interested in music training, please guide me.</p>
+            <div className="mt-2">
+              <Textarea placeholder="Type your reply here..." className="mb-2" />
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Reply via Email</Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports */}
+        <div className="p-4 border rounded bg-gray-50 shadow-sm">
+          <h2 className="text-xl font-semibold mb-2">Reports</h2>
+          <p className="text-gray-600 mb-4">Generate usage or registration reports.</p>
+          <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">Generate Report</Button>
+        </div>
       </div>
     </div>
   )

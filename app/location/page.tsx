@@ -31,7 +31,7 @@ export default function LocationPage() {
                   <br />
                   Music District
                   <br />
-                  Lagos, Nigeria 100001
+                  city stadium
                 </p>
               </div>
 
@@ -39,7 +39,7 @@ export default function LocationPage() {
                 <Phone className="w-5 h-5 text-blue-500 mt-1" />
                 <div>
                   <p className="font-medium">Phone</p>
-                  <p className="text-gray-600">+234 (0) 123 456 7890</p>
+                  <p className="text-gray-600">0718601582</p>
                 </div>
               </div>
 
@@ -47,7 +47,7 @@ export default function LocationPage() {
                 <Mail className="w-5 h-5 text-green-500 mt-1" />
                 <div>
                   <p className="font-medium">Email</p>
-                  <p className="text-gray-600">info@cvgpraysing.com</p>
+                  <p className="text-gray-600">miggs63@yahoo.com</p>
                 </div>
               </div>
             </CardContent>

@@ -1,18 +1,25 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Music } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
+    userType: "user", // default user type (used only for sending to backend)
     email: "",
     password: "",
   })
@@ -26,7 +33,7 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("http://localhost/musiclernee/backend/login.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,40 +44,35 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok && data.user) {
-        try {
-          localStorage.setItem("user", JSON.stringify(data.user))
+        localStorage.setItem("user", JSON.stringify(data.user)) // Use backend-provided userType
 
-          if (data.user.role === "admin") {
-            router.push("/dashboard/admin")
-          } else {
-            router.push("/dashboard/user")
-          }
-        } catch (storageError) {
-          console.error("Error storing user data:", storageError)
-          setError("Login successful but there was an issue saving your session. Please try again.")
+        if (data.user.userType === "admin") {
+          router.push("/dashboard/admin")
+        } else {
+          router.push("/dashboard/user")
         }
       } else {
         setError(data.message || "Login failed. Please try again.")
       }
     } catch (error) {
       console.error("Login error:", error)
-      setError("Network error. Please check your connection and try again.")
+      setError("Network error. Please check your connection.")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }))
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full space-y-8">
-        {/* Header */}
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Music className="w-8 h-8 text-white" />
@@ -79,7 +81,6 @@ export default function LoginPage() {
           <p className="text-gray-600 mt-2">Sign in to your CVGPraySing account</p>
         </div>
 
-        {/* Login Form */}
         <Card>
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
@@ -94,6 +95,20 @@ export default function LoginPage() {
               )}
 
               <div>
+                <Label htmlFor="userType">User Type</Label>
+                <select
+                  id="userType"
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div>
                 <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
@@ -102,7 +117,6 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="mt-1"
                   placeholder="Enter your email"
                 />
               </div>
@@ -116,7 +130,6 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="mt-1"
                   placeholder="Enter your password"
                 />
               </div>
@@ -126,27 +139,20 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            {/* Below form links wrapped properly */}
+            <div className="mt-6 space-y-2 text-center text-sm text-gray-600">
+              <p>
                 Don't have an account?{" "}
-                <a href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
                   Sign up here
-                </a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Demo Credentials */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-blue-800 mb-2">Demo Credentials</h3>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p>
-                <strong>Admin:</strong> admin@cvgpraysing.com / demo123
+                </Link>
               </p>
               <p>
-                <strong>User:</strong> user@example.com / demo123
+                <Link href="/forgot-password">
+                  <span className="text-blue-600 font-bold hover:underline cursor-pointer">
+                    Forgot password?
+                  </span>
+                </Link>
               </p>
             </div>
           </CardContent>
