@@ -25,7 +25,6 @@ export default function AdminDashboard() {
       const parsedUser = JSON.parse(userData)
       setUser(parsedUser)
 
-      // Redirect if not admin
       if (parsedUser.userType !== "admin") {
         router.push("/dashboard/user")
       }
@@ -43,7 +42,6 @@ export default function AdminDashboard() {
   }
 
   const handleSaveMaterialUrl = () => {
-    // Save to backend or state logic
     alert("Teaching material URL saved: " + materialUrl)
   }
 
@@ -70,10 +68,30 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-semibold mb-2">Manage Users</h2>
           <p className="text-gray-600 mb-4">View, add, edit or delete registered users.</p>
           <div className="space-x-2">
-            <Button className="bg-green-600 hover:bg-green-700 text-white">Add User</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Edit User</Button>
-            <Button className="bg-red-600 hover:bg-red-700 text-white">Delete User</Button>
-            <Button className="bg-gray-600 hover:bg-gray-700 text-white">View Users</Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => router.push("/adduser")}
+            >
+              Add User
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => router.push("/edituser")}
+            >
+              Edit User
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => router.push("/deleteuser")}
+            >
+              Delete User
+            </Button>
+            <Button
+              className="bg-gray-600 hover:bg-gray-700 text-white"
+              onClick={() => router.push("/viewusers")}
+            >
+              View Users
+            </Button>
           </div>
         </div>
 
@@ -96,7 +114,7 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-semibold mb-2">Messages from Contact Form</h2>
           <p className="text-gray-600 mb-4">View and reply to messages sent through the contact form.</p>
 
-          {/* Example message block */}
+          {/* Example message */}
           <div className="border p-3 rounded mb-3 bg-white shadow-sm">
             <p><strong>From:</strong> user@example.com</p>
             <p><strong>Message:</strong> I am interested in music training, please guide me.</p>

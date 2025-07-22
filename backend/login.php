@@ -22,26 +22,25 @@ if (isset($data->email) && isset($data->password)) {
     if ($resultAdmin->num_rows === 1) {
         $admin = $resultAdmin->fetch_assoc();
         if (password_verify($password, $admin['password'])) {
-            unset($admin['password']);
             echo json_encode([
                 "status" => "success",
                 "user" => [
+                    "first_name" => $admin['first_name'] ?? "N/A",
+                    "last_name" => $admin['last_name'] ?? "N/A",
                     "email" => $admin['email'],
+                    "password" => $admin['password'], // ⚠️ Consider removing or masking this
                     "userType" => "admin"
                 ]
             ]);
-            $stmtAdmin->close();
-            $conn->close();
-            exit;
         } else {
             echo json_encode([
                 "status" => "error",
                 "message" => "Incorrect password"
             ]);
-            $stmtAdmin->close();
-            $conn->close();
-            exit;
         }
+        $stmtAdmin->close();
+        $conn->close();
+        exit;
     }
     $stmtAdmin->close();
 
@@ -54,11 +53,13 @@ if (isset($data->email) && isset($data->password)) {
     if ($resultUser->num_rows === 1) {
         $user = $resultUser->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            unset($user['password']);
             echo json_encode([
                 "status" => "success",
                 "user" => [
+                    "first_name" => $user['first_name'] ?? "N/A",
+                    "last_name" => $user['last_name'] ?? "N/A",
                     "email" => $user['email'],
+                    "password" => $user['password'], // ⚠️ Consider removing or masking this
                     "userType" => "user"
                 ]
             ]);

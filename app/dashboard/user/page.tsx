@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import Services from "@/components/ui/services" // Adjust path as needed
 
 export default function UserDashboard() {
   const [user, setUser] = useState<any>(null)
@@ -13,20 +14,17 @@ export default function UserDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user")
       if (!userData) {
         router.push("/login")
         return
       }
-
       try {
         const parsedUser = JSON.parse(userData)
         setUser(parsedUser)
         loadMaterials()
-      } catch (error) {
-        console.error("Error parsing user data:", error)
+      } catch {
         localStorage.removeItem("user")
         router.push("/login")
         return
@@ -54,6 +52,39 @@ export default function UserDashboard() {
     }
   }
 
+  const handleProfileUpdate = async () => {
+    try {
+      const updateData = {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        password: user.passwordToUpdate || "", // passwordToUpdate is a new field for input, blank means no update
+      }
+
+      const response = await fetch("http://localhost/backend/update_user.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      })
+      const data = await response.json()
+
+      if (data.status === "success") {
+        alert("Profile updated successfully!")
+        // Remove passwordToUpdate from user state so it doesn't get saved locally
+        const newUser = { ...user }
+        delete newUser.passwordToUpdate
+        setUser(newUser)
+        localStorage.setItem("user", JSON.stringify(newUser))
+      } else {
+        alert(data.message || "Update failed")
+      }
+    } catch (error) {
+      console.error("Error updating user:", error)
+      alert("An error occurred.")
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,50 +96,57 @@ export default function UserDashboard() {
     )
   }
 
-  if (!user) {
-    return null
+  if (!user) return null
+
+  const firstName = user.first_name || user.name?.split(" ")[0] || "User"
+
+  // Tab colors, always shown, no hover color changes
+  const tabColors: Record<string, string> = {
+    materials: "bg-blue-500 text-white",
+    services: "bg-green-500 text-white",
+    profile: "bg-purple-500 text-white",
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">Welcome back, {user.name}!</h1>
-              <p className="text-gray-600">Continue your musical journey</p>
-            </div>
-            <Button onClick={handleLogout} variant="outline">
-              Logout
-            </Button>
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome back, {firstName}!</h1>
+            <p className="text-gray-600">Continue your musical journey</p>
           </div>
+          <Button onClick={handleLogout} variant="outline">
+            Logout
+          </Button>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8 bg-white p-1 rounded-lg shadow-sm">
-          {[
-            { id: "materials", label: "Learning Materials" },
-            { id: "profile", label: "My Profile" },
-          ].map((tab) => (
+        {/* Tabs */}
+        <div className="grid w-full grid-cols-3 gap-2 mb-6">
+          {["materials", "services", "profile"].map((id) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                activeTab === tab.id ? "bg-blue-600 text-white" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`px-4 py-2 rounded-md font-semibold ${
+                activeTab === id ? tabColors[id] : tabColors[id]
               }`}
+              aria-current={activeTab === id ? "page" : undefined}
+              // no hover styles, color is persistent
             >
-              {tab.label}
+              {id === "materials"
+                ? "Learning Materials"
+                : id === "services"
+                ? "Services"
+                : "Profile"}
             </button>
           ))}
         </div>
 
-        {/* Learning Materials Tab */}
+        {/* Tab content */}
         {activeTab === "materials" && (
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Materials List */}
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
@@ -164,56 +202,62 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* Profile Tab */}
+        {activeTab === "services" && (
+          <div>
+            <Services />
+          </div>
+        )}
+
         {activeTab === "profile" && (
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+                <CardTitle>Update Profile</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Full Name</label>
-                  <p className="text-lg">{user.name}</p>
+                  <label className="text-sm font-medium text-gray-600">First Name</label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-3 py-2"
+                    value={user.first_name}
+                    onChange={(e) => setUser({ ...user, first_name: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Email Address</label>
-                  <p className="text-lg">{user.email}</p>
+                  <label className="text-sm font-medium text-gray-600">Last Name</label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-3 py-2"
+                    value={user.last_name}
+                    onChange={(e) => setUser({ ...user, last_name: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Account Type</label>
-                  <span className="ml-2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">{user.role}</span>
+                  <label className="text-sm font-medium text-gray-600">Email</label>
+                  <input
+                    type="email"
+                    className="w-full border rounded px-3 py-2"
+                    value={user.email}
+                    onChange={(e) => setUser({ ...user, email: e.target.value })}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Learning Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Videos Watched</span>
-                      <span className="text-sm text-gray-600">0 / {materials.length}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: "0%" }}></div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 pt-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{materials.length}</div>
-                      <div className="text-sm text-gray-600">Available Videos</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">0</div>
-                      <div className="text-sm text-gray-600">Completed</div>
-                    </div>
-                  </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">New Password</label>
+                  <input
+                    type="password"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Leave blank to keep current password"
+                    onChange={(e) => setUser({ ...user, passwordToUpdate: e.target.value })}
+                    autoComplete="new-password"
+                  />
                 </div>
+                <Button
+                  className="bg-blue-600 text-white hover:bg-blue-700 mt-4"
+                  onClick={handleProfileUpdate}
+                >
+                  Save Changes
+                </Button>
               </CardContent>
             </Card>
           </div>
