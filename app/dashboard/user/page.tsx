@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Services from "@/components/ui/services" // Adjust path as needed
+import Services from "@/components/ui/services" // Adjust path if needed
 
 export default function UserDashboard() {
   const [user, setUser] = useState<any>(null)
@@ -59,7 +59,7 @@ export default function UserDashboard() {
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        password: user.passwordToUpdate || "", // passwordToUpdate is a new field for input, blank means no update
+        password: user.password, // keep existing password
       }
 
       const response = await fetch("http://localhost/backend/update_user.php", {
@@ -67,15 +67,12 @@ export default function UserDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),
       })
+
       const data = await response.json()
 
       if (data.status === "success") {
         alert("Profile updated successfully!")
-        // Remove passwordToUpdate from user state so it doesn't get saved locally
-        const newUser = { ...user }
-        delete newUser.passwordToUpdate
-        setUser(newUser)
-        localStorage.setItem("user", JSON.stringify(newUser))
+        localStorage.setItem("user", JSON.stringify(user))
       } else {
         alert(data.message || "Update failed")
       }
@@ -100,7 +97,6 @@ export default function UserDashboard() {
 
   const firstName = user.first_name || user.name?.split(" ")[0] || "User"
 
-  // Tab colors, always shown, no hover color changes
   const tabColors: Record<string, string> = {
     materials: "bg-blue-500 text-white",
     services: "bg-green-500 text-white",
@@ -133,7 +129,6 @@ export default function UserDashboard() {
                 activeTab === id ? tabColors[id] : tabColors[id]
               }`}
               aria-current={activeTab === id ? "page" : undefined}
-              // no hover styles, color is persistent
             >
               {id === "materials"
                 ? "Learning Materials"
@@ -243,13 +238,12 @@ export default function UserDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">New Password</label>
+                  <label className="text-sm font-medium text-gray-600">Password</label>
                   <input
                     type="password"
-                    className="w-full border rounded px-3 py-2"
-                    placeholder="Leave blank to keep current password"
-                    onChange={(e) => setUser({ ...user, passwordToUpdate: e.target.value })}
-                    autoComplete="new-password"
+                    className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500"
+                    value={user.password}
+                    disabled
                   />
                 </div>
                 <Button
@@ -266,3 +260,11 @@ export default function UserDashboard() {
     </div>
   )
 }
+
+
+
+
+
+
+
+

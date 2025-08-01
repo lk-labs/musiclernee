@@ -31,6 +31,7 @@ export default function EditUserPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
+  // Fetch user list on page load
   useEffect(() => {
     fetch("http://localhost/musiclernee/backend/getuserslist.php")
       .then((res) => res.json())
@@ -38,25 +39,26 @@ export default function EditUserPage() {
         if (data.success) {
           setUsers(data.users)
         } else {
-          setError("Error fetching users.")
+          setError("Failed to load users.")
         }
       })
-      .catch(() => setError("Error fetching users."))
+      .catch(() => setError("Failed to load users."))
   }, [])
 
+  // Fetch selected user details
   useEffect(() => {
-    if (selectedUserId) {
-      fetch(`http://localhost/musiclernee/backend/getuser.php?id=${selectedUserId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            setFormData(data.user)
-          } else {
-            setError("Error fetching user data.")
-          }
-        })
-        .catch(() => setError("Error fetching user data."))
-    }
+    if (!selectedUserId) return
+
+    fetch(`http://localhost/musiclernee/backend/getuser.php?id=${selectedUserId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setFormData(data.user)
+        } else {
+          setError("Failed to load user details.")
+        }
+      })
+      .catch(() => setError("Failed to load user details."))
   }, [selectedUserId])
 
   const handleUpdate = () => {
@@ -74,7 +76,9 @@ export default function EditUserPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setSuccess("User updated successfully.")
+          setSuccess(data.message || "User updated successfully.")
+        } else if (data.message === "No changes made or user not found.") {
+          setSuccess(data.message)
         } else {
           setError(data.message || "Failed to update user.")
         }
@@ -88,7 +92,7 @@ export default function EditUserPage() {
       <Card>
         <CardHeader>
           <CardTitle>Edit User</CardTitle>
-          <CardDescription>Select a user to update their details.</CardDescription>
+          <CardDescription>Select a user and update their details.</CardDescription>
         </CardHeader>
         <CardContent>
           <Label htmlFor="user-select">Select User</Label>
@@ -125,6 +129,7 @@ export default function EditUserPage() {
                   }
                 />
               </div>
+
               <div className="mt-4">
                 <Label htmlFor="last-name">Last Name</Label>
                 <Input
@@ -137,6 +142,7 @@ export default function EditUserPage() {
                   }
                 />
               </div>
+
               <div className="mt-4">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -149,11 +155,17 @@ export default function EditUserPage() {
                   }
                 />
               </div>
-              <Button className="mt-4 w-full" onClick={handleUpdate} disabled={loading}>
+
+              <Button
+                className="mt-4 w-full"
+                onClick={handleUpdate}
+                disabled={loading}
+              >
                 {loading ? "Updating..." : "Update User"}
               </Button>
-              {error && <p className="text-red-500 mt-2">{error}</p>}
-              {success && <p className="text-green-600 mt-2">{success}</p>}
+
+              {error && <p className="text-red-600 mt-3">{error}</p>}
+              {success && <p className="text-green-600 mt-3">{success}</p>}
             </>
           )}
         </CardContent>

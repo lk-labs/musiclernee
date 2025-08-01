@@ -189,13 +189,14 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-lg">WhatsApp</h3>
                   <a
-                    href="https://wa.me/254718601582"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-yellow-500 hover:text-yellow-600 font-medium"
-                  >
-                    Chat with us on WhatsApp
-                  </a>
+  href="https://wa.me/254702394964?text=Hello%2C%20I%20am%20interested%20in%20your%20music%20services"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="text-yellow-500 hover:text-yellow-600 font-medium"
+>
+  Chat with us on WhatsApp
+</a>
+
                   <p className="text-sm text-gray-500">Quick responses during business hours</p>
                 </div>
               </div>
@@ -206,9 +207,9 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-lg">Visit Us</h3>
                   <p className="text-gray-600">
-                    123 Harmony Street
+                    city stadium.
                     <br />
-                    Music District, Lagos, Nigeria
+                    kenya.
                   </p>
                   <a href="/location" className="text-blue-600 hover:text-blue-800 font-medium text-sm">
                     View location details →
@@ -257,3 +258,16 @@ export default function ContactPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
