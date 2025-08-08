@@ -27,11 +27,13 @@ export default function LocationPage() {
               <div>
                 <h3 className="font-semibold text-lg mb-2">CVGPraySing Music Studio</h3>
                 <p className="text-gray-600">
-                  123 Harmony Street
+                  Waitho plaza
                   <br />
-                  Music District
+                  City Stadium Round about
                   <br />
-                  city stadium
+                  off Lusaka Road 
+                  <br />
+                  Nairobi.
                 </p>
               </div>
 
